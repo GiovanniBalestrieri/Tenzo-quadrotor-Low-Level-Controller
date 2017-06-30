@@ -321,10 +321,7 @@ void Inertial::getAngularVel() {
 
 void Inertial::getGyroValues(int * values) { 
   gyro.readGyroRaw(&values[0], &values[1], &values[2]);
-  
-  //magn.getValues(&values[6]);
 }
-
 
 void Inertial::getRawValues(int * raw_values) {
   acc.readAccel(&raw_values[0], &raw_values[1], &raw_values[2]);
@@ -332,7 +329,6 @@ void Inertial::getRawValues(int * raw_values) {
   //magn.getValues(&raw_values[6], &raw_values[7], &raw_values[8]);
   
 }
-
 
 void Inertial::getValues(float * values) {  
   int accval[3];
@@ -349,14 +345,64 @@ void Inertial::getValues(float * values) {
   _wy = ((float) omegaval[1]);
   _wz = ((float) omegaval[2]);
 
+  
+  _wx =  _wx / (float) (14.375);
+  _wy =  _wy / (float) (14.375);
+  _wz =  _wz / (float) (14.375);
+
   values[0] = ((float) accval[0]);
   values[1] = ((float) accval[1]);
   values[2] = ((float) accval[2]);
-  values[3] = ((float) omegaval[0]);
-  values[4] = ((float) omegaval[1]);
-  values[5] = ((float) omegaval[2]);
+  values[3] = ((float) _wx);
+  values[4] = ((float) _wy);
+  values[5] = ((float) _wz);
   
   //magn.getValues(&values[6]);
+}
+
+void Inertial::getValues(float * values, boolean accFilt, boolean gyroFilt) {  
+  int accval[3];
+  int omegaval[3];
+  
+  acc.readAccel(&accval[0], &accval[1], &accval[2]);
+  gyro.readGyroRawCal(&omegaval[0],&omegaval[1],&omegaval[2]);
+   
+  _ax = ((float) accval[0]);
+  _ay = ((float) accval[1]);
+  _az = ((float) accval[2]);
+
+  if (accFilt) {
+    _aF[0] = _ax;
+    _aF[1] = _ay;
+    _aF[2] = _az;
+    this->accFilter(_aF);
+  }
+  
+  Serial.print("\tg1");
+  Serial.print(omegaval[1]);
+  
+  _wx = ((float) omegaval[0]);
+  _wy = ((float) omegaval[1]);
+  _wz = ((float) omegaval[2]);
+
+
+  Serial.print("\tg2");
+  Serial.print(_wy);
+  
+  _wx =  _wx / (14.375);
+  _wy =  _wy / (14.375);
+  _wz =  _wz / (14.375);
+  
+  Serial.print("\tg3");
+  Serial.println(_wy);
+
+  values[0] = ((float) accval[0]);
+  values[1] = ((float) accval[1]);
+  values[2] = ((float) accval[2]);
+  values[3] = ((float) _wx);
+  values[4] = ((float) _wy);
+  values[5] = ((float) _wz);
+  
 }
 
 
@@ -419,31 +465,50 @@ void Inertial::removeBiasAndScaleGyroData() {
 /**
  * Get Accelerometer's values
  */
-void Inertial::getAcc() {
+void Inertial::getAcc(boolean accFilt) {
 
-  // Read raw values
-   _axRaw=analogRead(ACC_X_AXIS_PIN);
-   _ayRaw=analogRead(ACC_Y_AXIS_PIN);
-   _azRaw=analogRead(ACC_Z_AXIS_PIN);
+  #ifdef ADXL345 
+    // Read raw values
+     _axRaw=analogRead(ACC_X_AXIS_PIN);
+     _ayRaw=analogRead(ACC_Y_AXIS_PIN);
+     _azRaw=analogRead(ACC_Z_AXIS_PIN);
+  
+    // convert Raw values
+    float xAccScaled = map(_axRaw, xRawMin, xRawMax, -1000, 1000);
+    float yAccScaled = map(_ayRaw, yRawMin, yRawMax, -1000, 1000);
+    float zAccScaled = map(_azRaw, zRawMin, zRawMax, -1000, 1000);
+    
+    
+    // re-scale to fractional Gs
+    _ax = xAccScaled / 1000.0;
+    _ay = yAccScaled / 1000.0;
+    _az = zAccScaled / 1000.0;
+     
+     if (filterAcc)
+     {
+        _aF[0] = _ax;
+        _aF[1] = _ay;
+        _aF[2] = _az;
+        accFilter(_aF);
+     }
+  #endif
 
-  // convert Raw values
-  float xAccScaled = map(_axRaw, xRawMin, xRawMax, -1000, 1000);
-  float yAccScaled = map(_ayRaw, yRawMin, yRawMax, -1000, 1000);
-  float zAccScaled = map(_azRaw, zRawMin, zRawMax, -1000, 1000);
+  #ifdef MPU6050
   
+    int accval[3];
+    acc.readAccel(&accval[0], &accval[1], &accval[2]);
   
-  // re-scale to fractional Gs
-  _ax = xAccScaled / 1000.0;
-  _ay = yAccScaled / 1000.0;
-  _az = zAccScaled / 1000.0;
-   
-   if (filterAcc)
-   {
+    _ax = ((float) accval[0]);
+    _ay = ((float) accval[1]);
+    _az = ((float) accval[2]);
+  
+    if (accFilt) {
       _aF[0] = _ax;
       _aF[1] = _ay;
       _aF[2] = _az;
-      accFilter(_aF);
-   }
+      this->accFilter(_aF);
+    } 
+  #endif
 }
 
 /**

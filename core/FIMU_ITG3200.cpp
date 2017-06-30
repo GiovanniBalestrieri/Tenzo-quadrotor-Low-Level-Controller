@@ -233,21 +233,18 @@ void ITG3200::readGyroRaw(int *_GyroX, int *_GyroY, int *_GyroZ){
 void ITG3200::readGyroRawCal(int *_GyroX, int *_GyroY, int *_GyroZ) {
   readGyroRaw(_GyroX, _GyroY, _GyroZ);
 
-  /*
+  
   Serial.print("\n\n\tBoom\t");
   Serial.print(*_GyroX);
   Serial.println("\t");
-  */
-  
+    
   *_GyroX += offsets[0];
   *_GyroY += offsets[1];
   *_GyroZ += offsets[2];
 
-  *_GyroX =  *_GyroX / (float) (14.375 * polarities[0] * gains[0]);
-  *_GyroY =  *_GyroY / (float) (14.375 * polarities[1] * gains[1]);
-  *_GyroZ =  *_GyroZ / (float) (14.375 * polarities[2] * gains[2]);
 }
 
+/* Problem here the last computation zeros the value */
 void ITG3200::readGyro(int *_GyroX, int *_GyroY, int *_GyroZ){
   
   readGyroRawCal(_GyroX, _GyroX, _GyroX); // x,y,z will contain calibrated integer values from the sensor

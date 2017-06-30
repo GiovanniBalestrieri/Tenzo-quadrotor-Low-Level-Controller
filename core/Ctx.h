@@ -27,9 +27,6 @@
   
   // Filters
   boolean removeSpikesNumerically = false;
-  // ISR
-  volatile boolean filterGyro = true;
-  volatile boolean filterAcc = true;
   
   
   

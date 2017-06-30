@@ -18,7 +18,7 @@ Propulsion tenzoProp(sakura.getM(1),sakura .getM(2),sakura.getM(3),sakura.getM(4
 // Init Log
 Inertial inertial = Inertial();
 // Init FreeSixIMU object
-FreeSixIMU sixDOF = FreeSixIMU();
+//FreeSixIMU sixDOF = FreeSixIMU();
 
 // Init Sonar
 Sonar ux1 = Sonar();
@@ -206,8 +206,8 @@ void getYPR()
   
     // Preemptable section
     //sei();            
-      // [max] 9800 us [avg] 4450 us
-      sixDOF.getYawPitchRoll(angles);   // 
+    // [max] 9800 us [avg] 4450 us
+                                          //sixDOF.getYawPitchRoll(angles);   // # bea
     //cli();
     
     contEulerSamples++; 
@@ -338,7 +338,7 @@ void loop() {
 
     case(3):
       // Task 3
-      Serial.println("\t\t\t\t\t\t\t\t\t\tGPS");
+      //Serial.println("\t\t\t\t\t\t\t\t\t\tGPS");
       scheduler.jobCompletedById(bestId);
       break;
       
@@ -535,31 +535,6 @@ void wFilter(volatile float val[])
   wzm1 = val[2];
 }
 
-void aFilter(volatile float val[])
-{
-  /*
-  Serial.print("I before:\t");
-  Serial.print(val[1]);
-  */
-
-
-
-  
-  val[0] = (1-alphaA)*val[0] + alphaA*axm1;
-  val[1] = (1-alphaA)*val[1] + alphaA*aym1;
-  val[2] = (1-alphaA)*val[2] + alphaA*azm1;
-
-  /*
-  Serial.print("\tafter:\t");
-  Serial.println(val[1]);
-  */
-  
-  axm1 = val[0];
-  aym1 = val[1];
-  azm1 = val[2];
-}
-
-
 ISR(TIMER3_COMPB_vect) // #ISR
 { 
   isrTimer = micros();
@@ -609,16 +584,9 @@ void acquireGyroYPR()
   // #DEBUG
   //sixDOF.getYawPitchRollGyro(angles,wVal);
   //sixDOF.getValues(inertiaValues);  
-  //inertial.getValues(inertiaValues);  
-  acquireGyro();
   
-  //sixDOF.getAngles(angles);    
-
-
-  /*
-  Serial.print("\n\nwVal:\t [alpha] ");    
-  Serial.print(inertiaValues[3]);
-  */
+  //inertial.getYawPitchRollGyro(angles,wVal);
+  inertial.getValues(inertiaValues,sakura.getAccFilterFlag(),sakura.getGyroFilterFlag());  
   
   for (int i = 0; i<3;i++)
   {
@@ -651,6 +619,7 @@ void acquireGyroYPR()
     wVal[2] = medianGyroZ.out();    
   }   
 
+  /* Done in the Inertial Class
   if (sakura.getAccFilterFlag())
   {    
     aFilter(inertiaValues); 
@@ -660,12 +629,12 @@ void acquireGyroYPR()
     {
       aF[i] = inertiaValues[i];
     }
-  }   
+  }
+  */   
   
 }
 
-void acquireGyro() // ISR
-{     
+void acquireGyro() {    
   //sixDOF.getGyroValues(wVal);
   
   int omegaval[3];
@@ -999,8 +968,8 @@ void SerialRoutine()
       }
       else if (t == 'o')
       {
-         //sakura.setPrintOmegas(!sakura.getPrintOmegas()); 
-         printOmega();
+         sakura.setPrintOmegas(!sakura.getPrintOmegas()); 
+         //printOmega();
       }
       else if (t == 'e')
       {
@@ -1741,6 +1710,14 @@ void printOmega()
   Serial.print(wVal[1]);
   Serial.print(",");
   Serial.print(wVal[2]);
+  Serial.print(",z\t\t");
+  
+  Serial.print("o,");
+  Serial.print(inertial.getAngularVel(XAXIS));
+  Serial.print(",");
+  Serial.print(inertial.getAngularVel(YAXIS));
+  Serial.print(",");
+  Serial.print(inertial.getAngularVel(ZAXIS));
   Serial.println(",z");
 }
 
@@ -1748,37 +1725,24 @@ void printAcc()
 {
   if (!sakura.getAccFilterFlag())
   {
-    Serial.print("a,");
-    Serial.print(rawAcc[0]);
+    Serial.print("aInerital,");
+    Serial.print(inertial.getAccX());
     Serial.print(",");
-    Serial.print(rawAcc[1]);
+    Serial.print(inertial.getAccY());
     Serial.print(",");
-    Serial.print(rawAcc[2]);
+    Serial.print(inertial.getAccZ());
     Serial.println(",z");
   }
   else
-  {
+  {    
     Serial.print("a,");
-    Serial.print(aF[0]);
+    Serial.print(inertial.getAccXFilt());
     Serial.print(",");
-    Serial.print(aF[1]);
+    Serial.print(inertial.getAccYFilt());
     Serial.print(",");
-    Serial.print(aF[2]);
+    Serial.print(inertial.getAccZFilt());
     Serial.println(",z");
-  }
-  
-  /*
-  Serial.print("a,");
-  Serial.print(angleXAcc);
-  Serial.print(",");
-  Serial.print(angleYAcc);
-  Serial.print(",");
-  Serial.print(estXAngle);
-  Serial.print(",");
-  Serial.print(estYAngle);
-  Serial.println(",z");
-  */
-  
+  }  
 }
 
 void printSerialAngle()

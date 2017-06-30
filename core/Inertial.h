@@ -89,6 +89,7 @@ class Inertial
     void requestMagnetometerData();
     
     void getValues(float * values);
+    void getValues(float * values, boolean a, boolean g);
     void getRawValues(int * raw_values);
 
     void filterValuesFirstOrder(float alpha);
@@ -105,7 +106,7 @@ class Inertial
     void getYawPitchRoll(float *);
 
     // Accelerometer
-    void getAcc();
+    void getAcc(boolean);
     float getAccX();
     float getAccY();
     float getAccZ();
