@@ -110,7 +110,6 @@ void Inertial::init( bool fastmode){
 
   // Init Gyroscope
   this->setupGyroscope();
-  Serial.println("[ Ok ] Gyro");
 
   // Init Magnetometer
   this->setupMagnetometer();
@@ -137,6 +136,7 @@ void Inertial::setupGyroscope() {
     
     // Compute gyro bias  
     this->calcGyroBias();
+    Serial.println("[ Ok ] Gyro");
   #endif 
 
   
@@ -145,9 +145,12 @@ void Inertial::setupGyroscope() {
     
     // init ITG3200
     gyro.init(FIMU_ITG3200_DEF_ADDR);  
+ //   gyro.begin(0x69);
+    
     delay(1000);
     // calibrate the ITG3200
     gyro.zeroCalibrate(128,5);
+    Serial.println("[ Ok ] Gyro itg3200");
   #endif
 }
 
@@ -377,24 +380,29 @@ void Inertial::getValues(float * values, boolean accFilt, boolean gyroFilt) {
     _aF[2] = _az;
     this->accFilter(_aF);
   }
-  
+
+  /*
   Serial.print("\tg1");
   Serial.print(omegaval[1]);
+  */
   
   _wx = ((float) omegaval[0]);
   _wy = ((float) omegaval[1]);
   _wz = ((float) omegaval[2]);
 
-
+  /*
   Serial.print("\tg2");
   Serial.print(_wy);
+  */
   
   _wx =  _wx / (14.375);
   _wy =  _wy / (14.375);
   _wz =  _wz / (14.375);
-  
+
+  /*
   Serial.print("\tg3");
   Serial.println(_wy);
+  */
 
   values[0] = ((float) accval[0]);
   values[1] = ((float) accval[1]);

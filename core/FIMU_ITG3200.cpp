@@ -219,24 +219,32 @@ void ITG3200::readGyroRaw(int *_GyroXYZ){
 
 void ITG3200::readGyroRaw(int *_GyroX, int *_GyroY, int *_GyroZ){
   readmem(GYRO_XOUT, 6, _buff);
+
   *_GyroX = ((_buff[0] << 8) | _buff[1]);
   *_GyroY = ((_buff[2] << 8) | _buff[3]); 
   *_GyroZ = ((_buff[4] << 8) | _buff[5]);
 
-  /*Serial.print("\n\n\tAAAA\t");
+/*
+  
+  Serial.print("\n\n\tBoom\t");
   Serial.print(*_GyroX);
+  Serial.print("\t");
+  Serial.print(*_GyroY);
+  Serial.print("\t");
+  Serial.print(*_GyroZ);
+  Serial.print("\t");
+  Serial.print(((_buff[0] << 8) | _buff[1]));
+  Serial.print("\t");
+  Serial.print(((_buff[2] << 8) | _buff[3]));
+  Serial.print("\t");
+  Serial.print(((_buff[4] << 8) | _buff[5]));
   Serial.println("\t");
   */
-  
 }
 
 void ITG3200::readGyroRawCal(int *_GyroX, int *_GyroY, int *_GyroZ) {
   readGyroRaw(_GyroX, _GyroY, _GyroZ);
 
-  
-  Serial.print("\n\n\tBoom\t");
-  Serial.print(*_GyroX);
-  Serial.println("\t");
     
   *_GyroX += offsets[0];
   *_GyroY += offsets[1];
@@ -252,11 +260,11 @@ void ITG3200::readGyro(int *_GyroX, int *_GyroY, int *_GyroZ){
   /*
     Serial.print("\n\n\tBoom\t");
     Serial.print(*_GyroX);
-  */
   
   *_GyroX =  *_GyroX / (float) (14.375 * polarities[0] * gains[0]);
   *_GyroY =  *_GyroY / (float) (14.375 * polarities[1] * gains[1]);
   *_GyroZ =  *_GyroZ / (float) (14.375 * polarities[2] * gains[2]);
+  */
   
   /*
   Serial.print("\n\n\tZZZ\t");
