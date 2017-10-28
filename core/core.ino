@@ -8,12 +8,11 @@
 // cont_safe = cont
 // cli()
 
-// Init User Experience agent Sakura
+// Init User Experience Agent Sakura
 Ux sakura;
 
 // Init Propulsion handler
 Propulsion tenzoProp(sakura.getM(1),sakura .getM(2),sakura.getM(3),sakura.getM(4));
-
 
 // Init Log
 Inertial inertial = Inertial();

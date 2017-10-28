@@ -1,6 +1,6 @@
 /*
   Inertial.cpp - Class to handle inertial sensors and estimates
-  to configure Accelerometers, Gyroscopes, Magnetometers, Barometers, Gps
+  to configure Accelerometers, Gyroscopes, Magnetometers, Barometers
   Created by Giovanni Balestrieri - UserK, March 3, 2017.
   
   Reviewved: 
@@ -48,11 +48,9 @@ int zRawMin = 419;
 int zRawMax = 288;
 
 
-  // Complementary Filter gains
-  const float k_compl_filter_acc = 0.025;
-  const float k_compl_filter_gyro = 0.975;
-
-
+// Complementary Filter gains
+const float k_compl_filter_acc = 0.025;
+const float k_compl_filter_gyro = 0.975;
 
 /*
  * Constructor: 
@@ -60,7 +58,7 @@ int zRawMax = 288;
  */
 Inertial::Inertial(){
   // Load accelerometer pins
-  #ifdef  ADXL345
+  #ifdef  ADXL345_ACC
     _axPin = ACC_X_AXIS_PIN;
     _ayPin = ACC_Y_AXIS_PIN;
     _azPin = ACC_Z_AXIS_PIN;
@@ -100,14 +98,12 @@ void Inertial::init( bool fastmode){
     cbi(PORTD, 1);
   #endif
   
-  if(fastmode) { // switch to 400KHz I2C - eheheh
+  if(fastmode) { // switch to 400KHz I2C
     TWBR = ((16000000L / 400000L) - 16) / 2; // see twi_init in Wire/utility/twi.c
-    // TODO: make the above usable also for 8MHz arduinos..
   }
   
   // Init Accelerometer
   this->setupAccelerometer();
-  Serial.println("[ Ok ] Acc");
 
   // Init Gyroscope
   this->setupGyroscope();
@@ -160,7 +156,7 @@ void Inertial::setupGyroscope() {
  * Initialize Accelerometer
  */
 void Inertial::setupAccelerometer() {
-  #ifdef ADXL345
+  #ifdef ADXL345_ACC
     pinMode(ACC_X_AXIS_PIN,INPUT);
     pinMode(ACC_Y_AXIS_PIN,INPUT);
     pinMode(ACC_Z_AXIS_PIN,INPUT);
@@ -170,10 +166,9 @@ void Inertial::setupAccelerometer() {
     acc = ADXL345();
     // init ADXL345
     acc.init(FIMU_ACC_ADDR);
-  
-
   #endif
-  
+    
+  Serial.println("[ Ok ] Acc");
 }
 
 /**
@@ -366,14 +361,23 @@ void Inertial::getValues(float * values) {
 
 void Inertial::getValues(float * values, boolean accFilt, boolean gyroFilt) {  
   int accval[3];
+  float accVal[3];
   int omegaval[3];
+
+  acc.get_Gxyz(accVal);
   
-  acc.readAccel(&accval[0], &accval[1], &accval[2]);
+  //acc.readAccel(&accval[0], &accval[1], &accval[2]);
   gyro.readGyroRawCal(&omegaval[0],&omegaval[1],&omegaval[2]);
    
+  /*
   _ax = ((float) accval[0]);
   _ay = ((float) accval[1]);
   _az = ((float) accval[2]);
+  */
+  
+  _ax = accVal[0];
+  _ay = accVal[1];
+  _az = accVal[2];
 
   if (accFilt) {
     _aF[0] = _ax;
@@ -472,11 +476,12 @@ void Inertial::removeBiasAndScaleGyroData() {
 
 
 /**
- * Get Accelerometer's values
+ * Get Accelerometer's raw values
  */
 void Inertial::getAcc(boolean accFilt) {
 
-  #ifdef ADXL345 
+  #ifdef ADXL345_ACC 
+    // TODO test
     // Read raw values
      _axRaw=analogRead(ACC_X_AXIS_PIN);
      _ayRaw=analogRead(ACC_Y_AXIS_PIN);

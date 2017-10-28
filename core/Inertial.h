@@ -16,7 +16,7 @@
 #include "MedianFilter.h"
 
 
-//#define ADXL345 1
+//#define ADXL345_ACC  // TODO test with analog pins
 //#define L3G4200D 1
 
 #define MPU6050 1

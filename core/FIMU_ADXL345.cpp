@@ -5,7 +5,7 @@
  ***************************************************************************
  *                                                                         * 
  * This program is free software; you can redistribute it and/or modify    *
- * it under the terms of the GNU License.                                  *
+ * it under the terms of the GNU Liense.                                  *
  * This program is distributed in the hope that it will be useful,         *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
@@ -22,6 +22,7 @@ ADXL345::ADXL345() {
   status = ADXL345_OK;
   error_code = ADXL345_NO_ERROR;
 
+  // This has to be updated by calibrating accelerometer
   gains[0] = 0.00376390;
   gains[1] = 0.00376009;
   gains[2] = 0.00349265;
