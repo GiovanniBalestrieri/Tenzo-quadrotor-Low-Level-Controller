@@ -582,7 +582,7 @@ void acquireGyroYPR()
 {
   // #DEBUG
   //sixDOF.getYawPitchRollGyro(angles,wVal);
-  //sixDOF.getValues(inertiaValues);  
+  //sixDOF.getValues(inertiaValues);  // returns raw acc values
   
   //inertial.getYawPitchRollGyro(angles,wVal);
   inertial.getValues(inertiaValues,sakura.getAccFilterFlag(),sakura.getGyroFilterFlag());  
@@ -617,19 +617,6 @@ void acquireGyroYPR()
     medianGyroZ.in(wVal[2]);
     wVal[2] = medianGyroZ.out();    
   }   
-
-  /* Done in the Inertial Class
-  if (sakura.getAccFilterFlag())
-  {    
-    aFilter(inertiaValues); 
-
-    // Copy arrays only if needed
-    for (int i = 0; i<3;i++)
-    {
-      aF[i] = inertiaValues[i];
-    }
-  }
-  */   
   
 }
 

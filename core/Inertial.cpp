@@ -363,7 +363,7 @@ void Inertial::getValues(float * values, boolean accFilt, boolean gyroFilt) {
   int accval[3];
   float accVal[3];
   int omegaval[3];
-
+  
   acc.get_Gxyz(accVal);
   
   //acc.readAccel(&accval[0], &accval[1], &accval[2]);
@@ -386,10 +386,10 @@ void Inertial::getValues(float * values, boolean accFilt, boolean gyroFilt) {
     this->accFilter(_aF);
   }
 
-  /*
-  Serial.print("\tg1");
+  
+  Serial.print("\tg1\t");
   Serial.print(omegaval[1]);
-  */
+  
   
   _wx = ((float) omegaval[0]);
   _wy = ((float) omegaval[1]);

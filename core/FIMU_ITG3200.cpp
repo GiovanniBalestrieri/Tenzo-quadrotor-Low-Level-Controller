@@ -218,33 +218,20 @@ void ITG3200::readGyroRaw(int *_GyroXYZ){
 
 
 void ITG3200::readGyroRaw(int *_GyroX, int *_GyroY, int *_GyroZ){
-  readmem(GYRO_XOUT, 6, _buff);
-
-  *_GyroX = ((_buff[0] << 8) | _buff[1]);
-  *_GyroY = ((_buff[2] << 8) | _buff[3]); 
-  *_GyroZ = ((_buff[4] << 8) | _buff[5]);
-
-/*
+  readFrom(GYRO_XOUT, 6, _buffByte);
+  
+  *_GyroX = ((_buffByte[0] << 8) | _buffByte[1]);
+  *_GyroY = ((_buffByte[2] << 8) | _buffByte[3]); 
+  *_GyroZ = ((_buffByte[4] << 8) | _buffByte[5]);
   
   Serial.print("\n\n\tBoom\t");
   Serial.print(*_GyroX);
-  Serial.print("\t");
-  Serial.print(*_GyroY);
-  Serial.print("\t");
-  Serial.print(*_GyroZ);
-  Serial.print("\t");
-  Serial.print(((_buff[0] << 8) | _buff[1]));
-  Serial.print("\t");
-  Serial.print(((_buff[2] << 8) | _buff[3]));
-  Serial.print("\t");
-  Serial.print(((_buff[4] << 8) | _buff[5]));
   Serial.println("\t");
-  */
+  
 }
 
 void ITG3200::readGyroRawCal(int *_GyroX, int *_GyroY, int *_GyroZ) {
   readGyroRaw(_GyroX, _GyroY, _GyroZ);
-
     
   *_GyroX += offsets[0];
   *_GyroY += offsets[1];
@@ -257,10 +244,12 @@ void ITG3200::readGyro(int *_GyroX, int *_GyroY, int *_GyroZ){
   
   readGyroRawCal(_GyroX, _GyroX, _GyroX); // x,y,z will contain calibrated integer values from the sensor
 
-  /*
+  
+  /* 
+   *  
     Serial.print("\n\n\tBoom\t");
     Serial.print(*_GyroX);
-  
+    
   *_GyroX =  *_GyroX / (float) (14.375 * polarities[0] * gains[0]);
   *_GyroY =  *_GyroY / (float) (14.375 * polarities[1] * gains[1]);
   *_GyroZ =  *_GyroZ / (float) (14.375 * polarities[2] * gains[2]);
@@ -342,6 +331,22 @@ void ITG3200::writemem(uint8_t _addr, uint8_t _val) {
   Wire.write(_val); // send value to write
   Wire.endTransmission(); // end transmission
 }
+
+void ITG3200::readFrom(byte addr, uint8_t nbytes, byte _buffByte[]) {
+  Wire.beginTransmission(_dev_address); // start transmission to device 
+  Wire.write(addr); // sends register address to read from
+  Wire.endTransmission(); // end transmission
+  
+  Wire.beginTransmission(_dev_address); // start transmission to device 
+  Wire.requestFrom(_dev_address, nbytes);// send data n-bytes read
+  uint8_t i = 0; 
+  while (Wire.available()) {
+    _buffByte[i] = Wire.read(); // receive DATA
+    i++;
+  }
+  Wire.endTransmission(); // end transmission
+}
+
 
 void ITG3200::readmem(uint8_t _addr, uint8_t _nbytes, uint8_t __buff[]) {
   Wire.beginTransmission(_dev_address); // start transmission to device 

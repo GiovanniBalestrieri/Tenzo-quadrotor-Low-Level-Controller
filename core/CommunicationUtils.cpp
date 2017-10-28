@@ -30,6 +30,26 @@ int readRegister(int deviceAddress, byte address)
 }
 
 
+// Reads num bytes starting from address register on device in to _buff array
+void readFrom(int _dev_address, byte address, int num, byte buff[]) {
+  Wire.beginTransmission(_dev_address); // start transmission to device
+  Wire.write(address);             // sends address to read from
+  Wire.endTransmission();         // end transmission
+
+  Wire.beginTransmission(_dev_address); // start transmission to device
+  Wire.requestFrom(_dev_address, num);    // request 6 bytes from device
+
+  int i = 0;
+  while(Wire.available())         // device may send less than requested (abnormal)
+  {
+    buff[i] = Wire.read();    // receive a byte
+    i++;
+  }
+
+  Wire.endTransmission();         // end transmission
+}
+
+
 void serialPrintFloatArr(float * arr, int length) {
   for(int i=0; i<length; i++) {
     serialFloatPrint(arr[i]);
