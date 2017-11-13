@@ -332,16 +332,16 @@ void ITG3200::writemem(uint8_t _addr, uint8_t _val) {
   Wire.endTransmission(); // end transmission
 }
 
-void ITG3200::readFrom(byte addr, uint8_t nbytes, byte _buffByte[]) {
+void ITG3200::readFrom(byte addr, int nbytes, byte buffByte[]) {
   Wire.beginTransmission(_dev_address); // start transmission to device 
   Wire.write(addr); // sends register address to read from
   Wire.endTransmission(); // end transmission
   
   Wire.beginTransmission(_dev_address); // start transmission to device 
   Wire.requestFrom(_dev_address, nbytes);// send data n-bytes read
-  uint8_t i = 0; 
+  int i = 0; 
   while (Wire.available()) {
-    _buffByte[i] = Wire.read(); // receive DATA
+    buffByte[i] = Wire.read(); // receive DATA
     i++;
   }
   Wire.endTransmission(); // end transmission

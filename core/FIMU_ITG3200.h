@@ -182,7 +182,7 @@ public:
   
   void writemem(uint8_t _addr, uint8_t _val);
   void readmem(uint8_t _addr, uint8_t _nbytes, uint8_t __buff[]);
-  void readFrom(byte _addr, uint8_t _nbytes, byte _buff[]);
+  void readFrom(byte addr, int nbytes, byte buff[]);
   
 private:
 
